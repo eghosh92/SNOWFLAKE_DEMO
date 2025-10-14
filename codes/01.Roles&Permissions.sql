@@ -5,6 +5,10 @@ create role if not exists snowflake_intelligence_admin;
 
 -- Grant integration creation privileges
 grant create integration on account to role snowflake_intelligence_admin;
+GRANT USAGE on warehouse ai_wh to role snowflake_intelligence_admin ;
+GRANT OPERATE ON WAREHOUSE ai_wh TO ROLE snowflake_intelligence_admin;
+GRANT MONITOR ON WAREHOUSE ai_wh TO ROLE snowflake_intelligence_admin;
+
 
 -- Grant database creation privileges
 grant create database on account to role snowflake_intelligence_admin;
@@ -62,3 +66,4 @@ create or replace stage docs encryption = (type = 'snowflake_sse') directory = (
 copy files
     into @docs/
     from @dash_cortex_agents.data.SNOWFLAKE_DEMO/branches/main/docs/;
+
