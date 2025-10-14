@@ -1,0 +1,434 @@
+name: RETAIL_SALES_ANALYST
+description: |
+  This semantic model is designed to support comprehensive retail sales analysis by integrating transactional data with contextual dimensions. It enables insights across product performance, store operations, and temporal trends.
+  Fact Table: sales_fact
+  Captures individual sales transactions, including:
+  Quantity sold
+  Revenue generated
+  References to article, store, and date dimensions
+
+  This table serves as the analytical backbone for measuring sales volume, revenue trends, and performance breakdowns.
+
+  Dimension Tables:
+  article_dimension
+  Contains metadata about products including:
+
+  Product name
+  Category (e.g., Apparel, Electronics, Sports)
+
+  Enables slicing sales by product attributes and category-level analysis.
+
+
+  store_dimension
+  Describes store-level attributes:
+
+  Store name
+  Geographic location
+  Supports regional performance comparisons and store-level KPIs.
+
+
+  date_dimension
+  Provides temporal context:
+  Full date
+  Day, month, year
+  Weekday
+
+  Facilitates time-series analysis, seasonal trends, and weekday/weekend comparisons.
+tables:
+  - name: ARTICLE_DIMENSION
+    description: This table stores information about articles, with each article uniquely identified by an ARTICLE_ID. It captures the name of the article and the category it belongs to, providing a dimensional view of articles for analysis and reporting purposes.
+    base_table:
+      database: DASH_CORTEX_AGENTS
+      schema: DATA
+      table: ARTICLE_DIMENSION
+    dimensions:
+      - name: ARTICLE_NAME
+        description: The name of the article or product being referenced.
+        expr: ARTICLE_NAME
+        data_type: VARCHAR(16777216)
+        cortex_search_service:
+          database: DASH_CORTEX_AGENTS
+          schema: DATA
+          service: ARTICLE_NAME_SEARCH
+      - name: CATEGORY
+        description: The category of the article, which represents the high-level grouping of products, such as electronics, clothing, or sports equipment.
+        expr: CATEGORY
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Electronics
+          - Apparel
+          - Sports
+    facts:
+      - name: ARTICLE_ID
+        description: Unique identifier for an article in the inventory.
+        expr: ARTICLE_ID
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '1003'
+          - '1010'
+          - '1001'
+    primary_key:
+      columns:
+        - ARTICLE_ID
+  - name: DATE_DIMENSION
+    description: This table stores a dimension of dates, providing a unique identifier for each date and additional attributes to support analysis and reporting by day, month, year, and weekday.
+    base_table:
+      database: DASH_CORTEX_AGENTS
+      schema: DATA
+      table: DATE_DIMENSION
+    dimensions:
+      - name: DATE
+        description: Date Dimension represents a specific point in time, allowing for analysis and filtering of data by individual dates.
+        expr: DATE
+        data_type: DATE
+        sample_values:
+          - '2023-01-02'
+          - '2023-04-10'
+          - '2023-08-13'
+      - name: WEEKDAY
+        description: The day of the week, representing the seven days of the week, used to analyze and report on data by day of the week.
+        expr: WEEKDAY
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Sunday
+          - Monday
+          - Tuesday
+    facts:
+      - name: DATE_ID
+        description: Unique identifier for a specific date in the calendar.
+        expr: DATE_ID
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '98'
+          - '29'
+          - '1'
+      - name: DAY
+        description: The day of the month, ranging from 1 to 31, representing the specific day within a month.
+        expr: DAY
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '29'
+          - '1'
+          - '2'
+      - name: MONTH
+        description: The month of the year, represented as a numerical value ranging from 1 (January) to 12 (December), used to identify and analyze data by month.
+        expr: MONTH
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '1'
+          - '2'
+          - '3'
+      - name: YEAR
+        description: The calendar year in which a date falls.
+        expr: YEAR
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '2023'
+    primary_key:
+      columns:
+        - DATE_ID
+  - name: SALES_FACT
+    description: This table captures sales transaction data, including the unique transaction identifier, the article or product sold, the store where the sale occurred, the date of the sale, the quantity of the product sold, and the revenue generated from the sale.
+    base_table:
+      database: DASH_CORTEX_AGENTS
+      schema: DATA
+      table: SALES_FACT
+    dimensions:
+      - name: TRANSACTION_ID
+        description: Unique identifier for each sales transaction.
+        expr: TRANSACTION_ID
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - TXN479201
+          - TXN499889
+          - TXN496922
+    facts:
+      - name: ARTICLE_ID
+        description: Unique identifier for the article being sold.
+        expr: ARTICLE_ID
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '1003'
+          - '1019'
+          - '1010'
+      - name: DATE_ID
+        description: Unique identifier for a specific date in the sales fact table, likely used to join with a date dimension table to provide additional date-related attributes.
+        expr: DATE_ID
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '79'
+          - '49'
+          - '127'
+      - name: QUANTITY_SOLD
+        description: The total number of units of a product sold in a single transaction.
+        expr: QUANTITY_SOLD
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '1'
+          - '5'
+          - '3'
+      - name: REVENUE
+        description: The total amount of money earned from sales transactions, representing the income generated from the sale of products or services.
+        expr: REVENUE
+        data_type: NUMBER(38,2)
+        access_modifier: public_access
+        sample_values:
+          - '966.19'
+          - '486.83'
+          - '67.28'
+      - name: STORE_ID
+        description: Unique identifier for the store where the sale was made.
+        expr: STORE_ID
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '204'
+          - '209'
+          - '208'
+  - name: STORE_DIMENSION
+    description: This table stores information about retail stores, including a unique identifier for each store, the name of the store, and its physical location.
+    base_table:
+      database: DASH_CORTEX_AGENTS
+      schema: DATA
+      table: STORE_DIMENSION
+    dimensions:
+      - name: LOCATION
+        description: The city or location where a store is physically situated.
+        expr: LOCATION
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Phoenix
+          - Los Angeles
+          - Houston
+      - name: STORE_NAME
+        description: The name of the store where the transaction or event occurred.
+        expr: STORE_NAME
+        data_type: VARCHAR(16777216)
+        sample_values:
+          - Store_2
+          - Store_3
+          - Store_1
+    facts:
+      - name: STORE_ID
+        description: Unique identifier for a store location.
+        expr: STORE_ID
+        data_type: NUMBER(38,0)
+        access_modifier: public_access
+        sample_values:
+          - '201'
+          - '202'
+          - '203'
+    primary_key:
+      columns:
+        - STORE_ID
+relationships:
+  - name: ARTICLE_DESCRIPTION
+    left_table: SALES_FACT
+    right_table: ARTICLE_DIMENSION
+    relationship_columns:
+      - left_column: ARTICLE_ID
+        right_column: ARTICLE_ID
+  - name: DATE_DESCRIPTION
+    left_table: SALES_FACT
+    right_table: DATE_DIMENSION
+    relationship_columns:
+      - left_column: DATE_ID
+        right_column: DATE_ID
+  - name: STORE_DESCRIPTION
+    left_table: SALES_FACT
+    right_table: STORE_DIMENSION
+    relationship_columns:
+      - left_column: STORE_ID
+        right_column: STORE_ID
+verified_queries:
+  - name: Best performing category
+    question: Best performing category
+    sql: |-
+      SELECT
+        ad.category,
+        ROUND(SUM(sf.revenue), 2) AS total_revenue
+      FROM
+        sales_fact AS sf
+        LEFT OUTER JOIN article_dimension AS ad ON sf.article_id = ad.article_id
+      GROUP BY
+        ad.category
+      ORDER BY
+        total_revenue DESC NULLS LAST
+      LIMIT
+        1
+    use_as_onboarding_question: false
+    verified_by: Ena Ghosh
+    verified_at: 1760458971
+  - name: The month where category 'Aparrel' did best
+    question: The month where category 'Aparrel' did best
+    sql: |-
+      SELECT
+        dd.month,
+        ROUND(SUM(sf.revenue), 2) AS total_revenue
+      FROM
+        sales_fact AS sf
+        LEFT OUTER JOIN article_dimension AS ad ON sf.article_id = ad.article_id
+        LEFT OUTER JOIN date_dimension AS dd ON sf.date_id = dd.date_id
+      WHERE
+        ad.category = 'Apparel'
+      GROUP BY
+        dd.month
+      ORDER BY
+        total_revenue DESC NULLS LAST
+      LIMIT
+        1
+    use_as_onboarding_question: false
+    verified_by: Ena Ghosh
+    verified_at: 1760461962
+  - name: Month on month revenue for Electronics
+    question: Month on month revenue for Electronics
+    sql: |-
+      WITH monthly_electronics_revenue AS (
+        SELECT
+          dd.year,
+          dd.month,
+          ROUND(SUM(sf.revenue), 2) AS monthly_revenue
+        FROM
+          sales_fact AS sf
+          LEFT OUTER JOIN article_dimension AS ad ON sf.article_id = ad.article_id
+          LEFT OUTER JOIN date_dimension AS dd ON sf.date_id = dd.date_id
+        WHERE
+          ad.category = 'Electronics'
+        GROUP BY
+          dd.year,
+          dd.month
+      ),
+      mom_changes AS (
+        SELECT
+          curr.year AS curr_year,
+          curr.month AS curr_month,
+          curr.monthly_revenue AS curr_monthly_revenue,
+          prev.year AS prev_year,
+          prev.month AS prev_month,
+          prev.monthly_revenue AS prev_monthly_revenue,
+          ROUND(curr.monthly_revenue - prev.monthly_revenue, 2) AS mom_absolute_change,
+          ROUND(
+            (curr.monthly_revenue - prev.monthly_revenue) / NULLIF(NULLIF(prev.monthly_revenue, 0), 0),
+            4
+          ) AS mom_percentage_change
+        FROM
+          monthly_electronics_revenue AS curr
+          LEFT JOIN monthly_electronics_revenue AS prev ON (
+            curr.year = prev.year
+            AND curr.month = prev.month + 1
+          )
+          OR (
+            curr.year = prev.year + 1
+            AND curr.month = 1
+            AND prev.month = 12
+          )
+      )
+      SELECT
+        curr_year,
+        curr_month,
+        curr_monthly_revenue,
+        prev_year,
+        prev_month,
+        prev_monthly_revenue,
+        mom_absolute_change,
+        mom_percentage_change
+      FROM
+        mom_changes
+      ORDER BY
+        curr_year DESC,
+        curr_month DESC NULLS LAST
+    use_as_onboarding_question: false
+    verified_by: Ena Ghosh
+    verified_at: 1760458352
+  - name: what are the key selling products in this category?
+    question: what are the key selling products in "Electronics" category?
+    sql: |-
+      SELECT
+      ad.category,
+        ad.article_name,
+        MIN(dd.date) AS start_date,
+        MAX(dd.date) AS end_date,
+        ROUND(SUM(sf.revenue), 2) AS total_revenue,
+        SUM(sf.quantity_sold) AS total_quantity_sold
+      FROM
+        sales_fact AS sf
+        LEFT OUTER JOIN article_dimension AS ad ON sf.article_id = ad.article_id
+        LEFT OUTER JOIN date_dimension AS dd ON sf.date_id = dd.date_id
+      WHERE
+        ad.category = 'Electronics'
+      GROUP BY
+        ad.category,ad.article_name
+      ORDER BY
+        total_revenue DESC NULLS LAST
+    use_as_onboarding_question: false
+    verified_by: Ena Ghosh
+    verified_at: 1760474507
+  - name: what is the monthly best selling product?
+    question: what is the monthly best selling product?
+    sql: |-
+      WITH monthly_product_revenue AS (
+        SELECT
+          dd.year,
+          dd.month,
+          ad.article_name,
+          ROUND(SUM(sf.revenue), 2) AS monthly_revenue
+        FROM
+          sales_fact AS sf
+          LEFT OUTER JOIN article_dimension AS ad ON sf.article_id = ad.article_id
+          LEFT OUTER JOIN date_dimension AS dd ON sf.date_id = dd.date_id
+        GROUP BY
+          dd.year,
+          dd.month,
+          ad.article_name
+      ),
+      monthly_product_ranked AS (
+        SELECT
+          year,
+          month,
+          article_name,
+          monthly_revenue,
+          RANK() OVER (
+            PARTITION BY year,
+            month
+            ORDER BY
+              monthly_revenue DESC NULLS LAST
+          ) AS revenue_rank
+        FROM
+          monthly_product_revenue
+      )
+      SELECT
+        year,
+        month,
+        article_name,
+        monthly_revenue
+      FROM
+        monthly_product_ranked
+      WHERE
+        revenue_rank = 1
+      ORDER BY
+        year DESC,
+        month DESC NULLS LAST
+    use_as_onboarding_question: false
+    verified_by: Ena Ghosh
+    verified_at: 1760474526
+module_custom_instructions:
+  question_categorization: Accept questions only on products and categories provided. Do not generate answers
+  sql_generation: |-
+    Use date_dimension for all time-based aggregations and filtering.
+    Always join sales_fact with article_dimension before analyzing product-level metrics.
+    Use store_dimension.location for geographic segmentation and mapping.
+    Apply filters on category to compare performance across product types.
+    Round numeric values to 2 places
+
+    Do not use date_id directly for date filtering—always join with date_dimension.
+    Do not aggregate revenue without considering quantity_sold for volume context.
+    Do not analyze sales_fact in isolation—always join with dimensions for meaningful insights.
+    Do not assume store_id implies geographic hierarchy—use location explicitly.

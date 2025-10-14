@@ -64,7 +64,7 @@ FILE_FORMAT = (
     TIMESTAMP_FORMAT=AUTO
 );
 
--- Remove the data already loaded in the 
+-- Remove the data already loaded in the db.schema
 
 -- REMOVE @DASH_CORTEX_AGENTS.DATA.DOCS/article_dimension.csv;
 -- REMOVE @DASH_CORTEX_AGENTS.DATA.DOCS/sales_fact.csv;
