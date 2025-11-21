@@ -1,0 +1,3 @@
+## Architectue
+
+https://github.com/eghosh92/SNOWFLAKE_DEMO/blob/main/architecture.png
