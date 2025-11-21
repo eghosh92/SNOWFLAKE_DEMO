@@ -1,3 +1,3 @@
-## Architectue
+## Architecture Diagram
 
-https://github.com/eghosh92/SNOWFLAKE_DEMO/blob/main/architecture.png
+![alt text](http://url/to/img.png](https://github.com/eghosh92/SNOWFLAKE_DEMO/blob/main/architecture.png)
